@@ -1,0 +1,16 @@
+Ceiling Fan,70
+LED Tube Light,20
+LED Bulb,10
+Refrigerator,150
+Television,80
+Laptop,60
+Desktop Computer,150
+Wi-Fi Router,10
+Mobile Charger,5
+Water Pump,750
+Air Cooler,200
+Air Conditioner,1500
+Mixer Grinder,500
+Electric Kettle,1500
+Microwave Oven,1000
+Iron,1200
