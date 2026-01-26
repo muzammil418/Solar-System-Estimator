@@ -1,8 +1,11 @@
 Worksheet 16
+
 Date: 20th of Janurary, 2026
+
 Points: 10
 
 Note:
+
 1. Do not write code that you don't understand or would not be able to explain yourself
 2. Create a new GitHub repository called "Solar System Estimator" and push this file and the solution of this exercise there!
 3. Use any and all tools/techniques necessary (including AI) to answer questions, write or understand code, or ask for clarifications
