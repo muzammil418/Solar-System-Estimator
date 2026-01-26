@@ -281,3 +281,39 @@ When you get stuck (every apprentice does!), ask:
 
 The solar panels on your future roof will convert sunlight to electricity. Your program will convert knowledge into a working plan. Both are acts of creation.
 
+
+Phase 2:
+============================================
+
+Decide on what features you'd like to give to the user:
+1. Only allow total load estimation and system recommendation
+2. Allow budget estimate and minimize battery costs by excluding the non-essential load (AC, Iron, TC, Motots, etc.)
+3. Estimate only for daytime and remove battery backup altogether
+4. Pick the most appropriate option from above based on user's total budget.
+
+For component costs: Ask AI to make average price estimates for solar panels, battery (Lead Acid, Tubular, or Lithium). This can help with the options where you recommend systems that minimize cost.
+
+
+One possibility:
+
+Make a reasonable assumption about the day time maximum usage to calculate the number of solar panels required.
+
+Add some extra panels to charge the battery for the night time usage.
+
+Ask the user about the battery backup budget. Divide the load into essential and non-essential, so that the battery can power only the essential load throughout the night. The non-essential load may be taken from the GRID (KESC) by the inverter.
+
+For example, if the essential load is just LED, Fans, and Fridge then the battery pack for the night just needs these essential loads to estimate the capacity and minimize the cost. Also, in the day time some extra panels need to be added so that the batteries can be charged for the night time.
+
+Rough Estimate:
+
+#		Quantity	Hours of Use	W		Wh
+Fan		2			24				80		3840
+LED		5			12				100		6000
+TV		1			4				100		400
+AC		1			12				1000	12000
+Fridge	1			24				150		3600
+Iron	1			1				500		500
+
+TOTAL (kWh)							1.93	26.34
+
+In this estimate, the Wh are calculated for the whole day and not just the night time. For battery backup estimate, the essential loads need to be calculated for the night time (exluding non-essential loads -- if the user's budget allows).
