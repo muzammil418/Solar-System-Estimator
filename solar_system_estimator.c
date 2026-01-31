@@ -2,7 +2,13 @@
 #include <stdlib.h>
 #include <math.h>
 
-/* Structure to store appliance information */
+/* ===== FIXED PRICES (PKR) ===== */
+#define PANEL_PRICE     20000   // price per 585W panel
+#define INVERTER_PRICE  62000  // inverter price
+#define LA_PRICE        45000   // Lead Acid battery price
+#define LI_PRICE        220000  // Lithium battery price
+
+/* Store appliance data */
 struct Appliance {
     char name[50];
     int watt;
@@ -14,170 +20,136 @@ struct Appliance {
 void loadAppliances(struct Appliance *arr, int count)
 {
     FILE *fp = fopen("appliances.txt", "r");
-    if (fp == NULL) {
-        printf("Error opening file!\n");
-        return;
+    if (!fp) {
+        printf("Error opening file\n");
+        exit(1);
     }
 
     for (int i = 0; i < count; i++) {
         fscanf(fp, " %[^,],%d", arr[i].name, &arr[i].watt);
     }
-
     fclose(fp);
 }
 
-/* Get usage from user */
+/* User input */
 void getUsageFromUser(struct Appliance *arr, int count)
 {
     for (int i = 0; i < count; i++) {
-        printf("\nAppliance: %s (%dW)\n", arr[i].name, arr[i].watt);
-
+        printf("\n%s (%dW)\n", arr[i].name, arr[i].watt);
         printf("Quantity: ");
         scanf("%d", &arr[i].quantity);
-
         printf("Hours per day: ");
         scanf("%f", &arr[i].hours);
     }
 }
 
-/* Calculate daily energy in Wh and print in table */
+/* Energy calculation */
 float calculateDailyEnergy(struct Appliance *arr, int count)
 {
     float totalWh = 0;
 
-    /* Print table header */
-    printf("\n%-30s %6s %6s %7s %12s\n", "Appliance Name", "Watt", "Qty", "Hours", "Energy(Wh)");
-    printf("-------------------------------------------------------------------------------\n");
+    printf("\n%-25s %-6s %-6s %-8s %-10s\n",
+           "Appliance", "Watt", "Qty", "Hours", "Wh");
 
     for (int i = 0; i < count; i++) {
-        float applianceWh = arr[i].watt * arr[i].quantity * arr[i].hours;
-        totalWh += applianceWh;
+        float wh = arr[i].watt * arr[i].quantity * arr[i].hours;
+        totalWh += wh;
 
-        printf("%-30s %6d %6d %7.2f %12.2f\n",
+        printf("%-25s %-6d %-6d %-8.2f %-10.2f\n",
                arr[i].name, arr[i].watt,
-               arr[i].quantity, arr[i].hours, applianceWh);
+               arr[i].quantity, arr[i].hours, wh);
     }
 
-    printf("-------------------------------------------------------------------------------\n");
-    printf("%-30s %6s %6s %7s %12.2f\n", "TOTAL", "", "", "", totalWh);
-
+    printf("\nTotal Daily Energy: %.2f Wh\n", totalWh);
     return totalWh;
 }
 
-/* Convert Wh to kWh */
-float convertWhToKWh(float totalWh)
+/* Inverter sizing (WATT based) */
+float calculateInverter(float totalWh)
 {
-    float totalKWh = totalWh / 1000.0;
-    printf("\nTotal energy in kWh: %.2f kWh\n", totalKWh);
-    return totalKWh;
+    float inverterWatt = (totalWh / 24.0) * 1.25;
+	int inverterKW = (int)ceil(inverterWatt / 1000.0);
+    int inverterCost = inverterKW * INVERTER_PRICE;
+	
+    printf("Recommended Inverter: %.0f W\n", inverterWatt);
+	printf("Inverter Selected: %d kW\n", inverterKW);
+	
+    return inverterKW;
 }
 
-/* Calculate recommended inverter size */
-float calculateInverterFromWh(float totalWh)
-{
-    float avgLoad = totalWh / 24.0;
-    float inverterVA = avgLoad * 1.25;
-
-    printf("Recommended inverter size: %.0f VA\n", inverterVA);
-    return inverterVA;
-}
-
-/* Calculate required number of solar panels */
+/* Solar panels calculation */
 int calculateSolarPanels(float totalWh)
 {
-    float peakSunHours = 4.5;   /* Teacher-provided peak sun hours */
-    float pvSize = (totalWh / peakSunHours) * 1.3;
+    float peakSunHours = 4.5;
+    int panelWatt = 585;
 
-    int numPanels = (int)(pvSize / 585 + 0.999);
-    printf("Recommended solar panels: %d * 585W\n", numPanels);
-    return numPanels;
+    float pvSize = (totalWh / peakSunHours) * 1.3;
+    int panels = (int)ceil(pvSize / panelWatt);
+
+    printf("Solar Panels Required: %d x %dW\n", panels, panelWatt);
+    return panels;
 }
 
-/* Display battery recommendations in table */
-void displayBatteryBank(float totalWh)
+/* Battery calculation (night load only) */
+void calculateBattery(float nightWh,
+                      int *laCount, int *liCount,
+                      float *laCap, float *liCap)
 {
-    /* Lead Acid constants */
-    const int voltageLA = 12;
-    const int AhLA = 200;
-    const float DoD_LA = 0.5;       // 50%
-    const int cyclesLA_min = 2000;
-    const int cyclesLA_max = 3000;
+    int V = 12, Ah = 200;
 
-    /* Lithium constants */
-    const int voltageLi = 12;
-    const int AhLi = 200;
-    const float DoD_Li = 0.8;       // 80%
-    const int cyclesLi_min = 6000;
-    const int cyclesLi_max = 10000;
+    *laCount = ceil((nightWh / V) / 0.5 / Ah);
+    *liCount = ceil((nightWh / V) / 0.8 / Ah);
 
-    /* Lead Acid calculation */
-    float requiredAhLA = (totalWh / voltageLA) / DoD_LA;
-    int numBatteriesLA = (int)ceil(requiredAhLA / AhLA);
-    float totalCapacityLA_kWh = (numBatteriesLA * AhLA * voltageLA) / 1000.0; // kWh
-
-    /* Lithium calculation */
-    float requiredAhLi = (totalWh / voltageLi) / DoD_Li;
-    int numBatteriesLi = (int)ceil(requiredAhLi / AhLi);
-    float totalCapacityLi_kWh = (numBatteriesLi * AhLi * voltageLi) / 1000.0; // kWh
-
-    /* Print battery table header */
-    printf("\n%-15s %15s %20s %7s %20s\n",
-           "Battery Type", "No. Batteries", "Total Capacity(kWh)", "DoD", "Estimated Life (Cycles)");
-    printf("-----------------------------------------------------------------------------------------------\n");
-
-    /* Print Lead Acid */
-    printf("%-15s %15d %20.2f %7s %20d-%d\n",
-           "Lead Acid", numBatteriesLA, totalCapacityLA_kWh, "50%", cyclesLA_min, cyclesLA_max);
-
-    /* Print Lithium */
-    printf("%-15s %15d %20.2f %7s %20d-%d\n",
-           "Lithium", numBatteriesLi, totalCapacityLi_kWh, "80%", cyclesLi_min, cyclesLi_max);
-    printf("-----------------------------------------------------------------------------------------------\n");
+    *laCap = (*laCount * V * Ah) / 1000.0;
+    *liCap = (*liCount * V * Ah) / 1000.0;
 }
 
 int main()
 {
     FILE *fp;
-    int count = 0;
     char line[100];
+    int count = 0;
 
-    float totalWh, totalKWh, inverterVA;
-    int panelCount;
-
-    /* Open file to count number of appliances */
+    /* Count appliances */
     fp = fopen("appliances.txt", "r");
-    if (fp == NULL) {
-        printf("Error opening file!\n");
+    if (!fp) {
+        printf("File not found\n");
         return 1;
     }
-
-    /* Count number of lines (appliances) */
-    while (fgets(line, sizeof(line), fp) != NULL) {
-        count++;
-    }
+    while (fgets(line, sizeof(line), fp)) count++;
     fclose(fp);
 
-    /* Allocate memory for appliances */
     struct Appliance *list = malloc(count * sizeof(struct Appliance));
-    if (list == NULL) {
-        printf("Memory allocation failed!\n");
-        return 1;
-    }
+    if (!list) return 1;
 
-    /* Call functions */
     loadAppliances(list, count);
     getUsageFromUser(list, count);
 
-    totalWh = calculateDailyEnergy(list, count);
-    totalKWh = convertWhToKWh(totalWh);
-    inverterVA = calculateInverterFromWh(totalWh);
-    panelCount = calculateSolarPanels(totalWh);
+    float totalWh = calculateDailyEnergy(list, count);
 
-    /* Display battery recommendations in table */
-    displayBatteryBank(totalWh);
+    int inverterKw = calculateInverter(totalWh);
+    int panels = calculateSolarPanels(totalWh);
 
-    /* Free allocated memory */
+    /* Night load (14 hours) */
+    float nightWh = totalWh * (14.0 / 24.0);
+
+    int laCount, liCount;
+    float laCap, liCap;
+    calculateBattery(nightWh, &laCount, &liCount, &laCap, &liCap);
+
+    /* Cost summary */
+    printf("\n--- System Cost Summary ---\n");
+
+    printf("Solar Panels Cost: PKR %d\n", panels * PANEL_PRICE);
+    printf("Inverter Cost: PKR %d\n",  inverterKw * INVERTER_PRICE);
+
+    printf("\nBattery Options:\n");
+    printf("Lead Acid: %d batteries | %.2f kWh | Cost: PKR %d | Life: 2000-3000 cycles\n",
+           laCount, laCap, laCount * LA_PRICE);
+
+    printf("Lithium:   %d batteries | %.2f kWh | Cost: PKR %d | Life: 6000-10000 cycles\n",
+           liCount, liCap, liCount * LI_PRICE);
+	
     free(list);
-
     return 0;
 }
