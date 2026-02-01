@@ -67,7 +67,7 @@ float calculateDailyEnergy(struct Appliance *arr, int count)
 /* Inverter sizing (WATT based) */
 float calculateInverter(float totalWh)
 {
-    float inverterWatt = (totalWh / 24.0) * 1.25;
+    float inverterWatt = totalWh * 1.25;
 	int inverterKW = (int)ceil(inverterWatt / 1000.0);
     int inverterCost = inverterKW * INVERTER_PRICE;
 	
@@ -139,14 +139,18 @@ int main()
 
     /* Cost summary */
     printf("\n--- System Cost Summary ---\n");
-
+	
+	printf("Per Pannel Cost 20000\n");
     printf("Solar Panels Cost: PKR %d\n", panels * PANEL_PRICE);
+	printf("Inverter per KW cost 62000\n");
     printf("Inverter Cost: PKR %d\n",  inverterKw * INVERTER_PRICE);
 
     printf("\nBattery Options:\n");
+	printf("Lead Acide battery 200Ah 12V cost 45000\n");
     printf("Lead Acid: %d batteries | %.2f kWh | Cost: PKR %d | Life: 2000-3000 cycles\n",
            laCount, laCap, laCount * LA_PRICE);
-
+	
+	printf("Lithium battery 200Ah 12V cost 220000\n");
     printf("Lithium:   %d batteries | %.2f kWh | Cost: PKR %d | Life: 6000-10000 cycles\n",
            liCount, liCap, liCount * LI_PRICE);
 	
