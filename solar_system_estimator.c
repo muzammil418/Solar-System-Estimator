@@ -104,6 +104,59 @@ void calculateBattery(float nightWh,
     *liCap = (*liCount * V * Ah) / 1000.0;
 }
 
+void calculate_inverter_price(int inverterKW){
+	
+	float inverterPrice;
+
+    if (inverterKW == 1) {
+        inverterPrice = 63000;
+    } 
+    else if (inverterKW == 2) {
+        inverterPrice = 38500;
+    } 
+    else if (inverterKW == 3) {
+        inverterPrice = 82000;
+    } 
+    else if (inverterKW == 4) {
+        inverterPrice = 120000;
+    } 
+    else if (inverterKW == 5) {
+        inverterPrice = 112000;
+    } 
+    else if (inverterKW == 6) {
+        inverterPrice = 162500;
+    } 
+    else if (inverterKW == 7) {
+        inverterPrice = 155000;
+    } 
+    else if (inverterKW == 8) {
+        inverterPrice = 294500;
+    } 
+    else if (inverterKW == 9) {
+        inverterPrice = 121000;
+    } 
+    else if (inverterKW == 10) {
+        inverterPrice = 435000;
+    } 
+    else if (inverterKW == 11) {
+        inverterPrice = 329500;
+    } 
+    else if (inverterKW == 12) {
+        inverterPrice = 775000;
+    } 
+    else if (inverterKW == 13) {
+        inverterPrice = 0; // Price not available
+    } 
+    else if (inverterKW == 14) {
+        inverterPrice = 875000;
+    } 
+    else {
+        inverterPrice = 0; // Unknown size
+    }
+	printf("Inverter Cost: PKR %.2f\n", inverterPrice);
+	
+}
+
 int main()
 {
     FILE *fp;
@@ -142,8 +195,9 @@ int main()
 	
 	printf("Per Pannel Cost 20000\n");
     printf("Solar Panels Cost: PKR %d\n", panels * PANEL_PRICE);
-	printf("Inverter per KW cost 62000\n");
-    printf("Inverter Cost: PKR %d\n",  inverterKw * INVERTER_PRICE);
+	calculate_inverter_price(inverterKw);
+	// printf("Inverter per KW cost 62000\n");
+    // printf("Inverter Cost: PKR %d\n",  inverterKw * INVERTER_PRICE);
 
     printf("\nBattery Options:\n");
 	printf("Lead Acide battery 200Ah 12V cost 45000\n");
