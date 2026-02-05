@@ -4,7 +4,6 @@
 
 /* ===== FIXED PRICES (PKR) ===== */
 #define PANEL_PRICE     20000   // price per 585W panel
-#define INVERTER_PRICE  62000  // inverter price
 #define LA_PRICE        45000   // Lead Acid battery price
 #define LI_PRICE        220000  // Lithium battery price
 
@@ -144,12 +143,6 @@ void calculate_inverter_price(int inverterKW){
     else if (inverterKW == 12) {
         inverterPrice = 775000;
     } 
-    else if (inverterKW == 13) {
-        inverterPrice = 0; // Price not available
-    } 
-    else if (inverterKW == 14) {
-        inverterPrice = 875000;
-    } 
     else {
         inverterPrice = 0; // Unknown size
     }
@@ -196,8 +189,6 @@ int main()
 	printf("Per Pannel Cost 20000\n");
     printf("Solar Panels Cost: PKR %d\n", panels * PANEL_PRICE);
 	calculate_inverter_price(inverterKw);
-	// printf("Inverter per KW cost 62000\n");
-    // printf("Inverter Cost: PKR %d\n",  inverterKw * INVERTER_PRICE);
 
     printf("\nBattery Options:\n");
 	printf("Lead Acide battery 200Ah 12V cost 45000\n");
