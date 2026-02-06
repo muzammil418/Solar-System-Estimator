@@ -3,7 +3,7 @@
 #include <math.h>
 
 /* ===== FIXED PRICES (PKR) ===== */
-#define PANEL_PRICE     20000   // price per 585W panel
+#define PANEL_PRICE     20000   // price per 585W panel 
 #define LA_PRICE        45000   // Lead Acid battery price
 #define LI_PRICE        220000  // Lithium battery price
 
@@ -68,7 +68,7 @@ float calculateInverter(float totalWh)
 {
     float inverterWatt = totalWh * 1.25;
 	int inverterKW = (int)ceil(inverterWatt / 1000.0);
-    int inverterCost = inverterKW * INVERTER_PRICE;
+    
 	
     printf("Recommended Inverter: %.0f W\n", inverterWatt);
 	printf("Inverter Selected: %d kW\n", inverterKW);
@@ -194,10 +194,15 @@ int main()
 	printf("Lead Acide battery 200Ah 12V cost 45000\n");
     printf("Lead Acid: %d batteries | %.2f kWh | Cost: PKR %d | Life: 2000-3000 cycles\n",
            laCount, laCap, laCount * LA_PRICE);
+	printf("Lead Acid battery price per day %.2f PKR\n", LA_PRICE / 2500.0);
+	printf("Lead Acid battery price per KWH %.2f PKR\n", LA_PRICE / 2.4);
+	printf("\n");
 	
 	printf("Lithium battery 200Ah 12V cost 220000\n");
     printf("Lithium:   %d batteries | %.2f kWh | Cost: PKR %d | Life: 6000-10000 cycles\n",
            liCount, liCap, liCount * LI_PRICE);
+	printf("Lithium battery price per day %.2f PKR\n", LI_PRICE / 8000.0);
+	printf("Lithium battery price per KWH %.2f PKR\n", LI_PRICE / 2.4);
 	
     free(list);
     return 0;
